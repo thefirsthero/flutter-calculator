@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart'; // Import Cupertino library
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_calculator/controller/calculate_controller.dart';
 import 'package:flutter_calculator/controller/theme_controller.dart';
 import 'package:flutter_calculator/utils/colors.dart';
@@ -35,30 +35,210 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var controller = Get.find<CalculateController>();
-    var themeController = Get.find<ThemeController>();
+    final controller = Get.find<CalculateController>();
+    final themeController = Get.find<ThemeController>();
+    final screenSize = MediaQuery.of(context).size;
+    final isTablet = screenSize.width > 600;
 
     return GetBuilder<ThemeController>(builder: (context) {
       return Scaffold(
         backgroundColor: themeController.isDark
             ? DarkColors.scaffoldBgColor
             : LightColors.scaffoldBgColor,
-        body: Column(
-          children: [
-            GetBuilder<CalculateController>(builder: (context) {
-              return outPutSection(themeController, controller);
-            }),
-            inPutSection(themeController, controller),
-          ],
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                children: [
+                  // Output Section - Dynamic height
+                  Expanded(
+                    flex: isTablet ? 1 : 1,
+                    child: GetBuilder<CalculateController>(builder: (context) {
+                      return _buildOutputSection(
+                        themeController,
+                        controller,
+                        constraints,
+                        isTablet,
+                      );
+                    }),
+                  ),
+                  // Input Section - Takes remaining space
+                  Expanded(
+                    flex: isTablet ? 2 : 2,
+                    child: _buildInputSection(
+                      themeController,
+                      controller,
+                      constraints,
+                      isTablet,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       );
     });
   }
 
-  Widget inPutSection(
-      ThemeController themeController, CalculateController controller) {
+  Widget _buildOutputSection(
+    ThemeController themeController,
+    CalculateController controller,
+    BoxConstraints constraints,
+    bool isTablet,
+  ) {
     return Container(
-      padding: const EdgeInsets.all(3),
+      width: double.infinity,
+      padding: EdgeInsets.only(
+        left: isTablet ? 32 : 20,
+        right: isTablet ? 32 : 20,
+        top: isTablet ? 20 : 16,
+        bottom: isTablet ? 16 : 12,
+      ),
+      child: Column(
+        children: [
+          // Theme Toggle Switch - Top right corner
+          Align(
+            alignment: Alignment.topRight,
+            child: _buildThemeToggle(themeController, isTablet),
+          ),
+          
+          // Spacer to push results to bottom
+          Expanded(
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              child: _buildResultsDisplay(
+                themeController,
+                controller,
+                constraints,
+                isTablet,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThemeToggle(ThemeController themeController, bool isTablet) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            themeController.isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+            color: themeController.isDark 
+                ? Colors.grey[400] 
+                : Colors.grey[600],
+            size: isTablet ? 20 : 18,
+          ),
+          const SizedBox(width: 8),
+          Transform.scale(
+            scale: isTablet ? 0.9 : 0.8,
+            child: CupertinoSwitch(
+              value: themeController.switcherController.value,
+              onChanged: (value) {
+                themeController.switcherController.value = value;
+              },
+              activeColor: themeController.isDark 
+                  ? Colors.blue[400] 
+                  : Colors.blue[600],
+              trackColor: themeController.isDark 
+                  ? Colors.grey[700] 
+                  : Colors.grey[300],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultsDisplay(
+    ThemeController themeController,
+    CalculateController controller,
+    BoxConstraints constraints,
+    bool isTablet,
+  ) {
+    return Flexible(
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: isTablet ? 24 : 20,
+          vertical: isTablet ? 16 : 12,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // User Input Display
+            if (controller.userInput.isNotEmpty)
+              Container(
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  reverse: true,
+                  child: Text(
+                    controller.userInput,
+                    style: GoogleFonts.ubuntu(
+                      color: themeController.isDark 
+                          ? Colors.grey[400] 
+                          : Colors.grey[600],
+                      fontSize: _getInputFontSize(
+                        controller.userInput.length,
+                        isTablet,
+                      ),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ),
+            
+            if (controller.userInput.isNotEmpty)
+              SizedBox(height: 8),
+            
+            // User Output Display
+            Container(
+              width: double.infinity,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                child: Text(
+                  controller.userOutput.isEmpty ? "0" : controller.userOutput,
+                  style: GoogleFonts.ubuntu(
+                    fontWeight: FontWeight.w300,
+                    color: themeController.isDark ? Colors.white : Colors.black87,
+                    fontSize: _getOutputFontSize(
+                      controller.userOutput.length,
+                      isTablet,
+                    ),
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputSection(
+    ThemeController themeController,
+    CalculateController controller,
+    BoxConstraints constraints,
+    bool isTablet,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        isTablet ? 20 : 12,
+        isTablet ? 16 : 12,
+        isTablet ? 20 : 12,
+        isTablet ? 24 : 16,
+      ),
       decoration: BoxDecoration(
         color: themeController.isDark
             ? DarkColors.sheetBgColor
@@ -67,152 +247,139 @@ class MainScreen extends StatelessWidget {
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: buttons.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-        ),
-        itemBuilder: (context, index) {
-          switch (index) {
-            /// CLEAR BTN
-            case 0:
-              return CustomAppButton(
-                buttonTapped: () {
-                  controller.clearInputAndOutput();
-                },
-                color: themeController.isDark
-                    ? DarkColors.leftOperatorColor
-                    : LightColors.leftOperatorColor,
-                textColor: themeController.isDark
-                    ? DarkColors.btnBgColor
-                    : LightColors.btnBgColor,
-                text: buttons[index],
+      child: LayoutBuilder(
+        builder: (context, buttonConstraints) {
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: buttons.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              crossAxisSpacing: isTablet ? 16 : 8,
+              mainAxisSpacing: isTablet ? 16 : 8,
+              childAspectRatio: _getButtonAspectRatio(buttonConstraints, isTablet),
+            ),
+            itemBuilder: (context, index) {
+              return _buildCalculatorButton(
+                themeController,
+                controller,
+                index,
+                isTablet,
               );
-
-            /// DELETE BTN
-            case 1:
-              return CustomAppButton(
-                buttonTapped: () {
-                  controller.deleteBtnAction();
-                },
-                color: themeController.isDark
-                    ? DarkColors.leftOperatorColor
-                    : LightColors.leftOperatorColor,
-                textColor: themeController.isDark
-                    ? DarkColors.btnBgColor
-                    : LightColors.btnBgColor,
-                text: buttons[index],
-              );
-
-            /// EQUAL BTN
-            case 19:
-              return CustomAppButton(
-                buttonTapped: () {
-                  controller.equalPressed();
-                },
-                color: themeController.isDark
-                    ? DarkColors.leftOperatorColor
-                    : LightColors.leftOperatorColor,
-                textColor: themeController.isDark
-                    ? DarkColors.btnBgColor
-                    : LightColors.btnBgColor,
-                text: buttons[index],
-              );
-
-            default:
-              return CustomAppButton(
-                buttonTapped: () {
-                  controller.onBtnTapped(buttons, index);
-                },
-                color: isOperator(buttons[index])
-                    ? LightColors.operatorColor
-                    : themeController.isDark
-                        ? DarkColors.btnBgColor
-                        : LightColors.btnBgColor,
-                textColor: isOperator(buttons[index])
-                    ? Colors.white
-                    : themeController.isDark
-                        ? Colors.white
-                        : Colors.black,
-                text: buttons[index],
-              );
-          }
+            },
+          );
         },
       ),
     );
   }
 
-  Widget outPutSection(
-      ThemeController themeController, CalculateController controller) {
-    return Expanded(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Modern day-night switch using CupertinoSwitch
-        Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: SwitchListTile(
-            title: Text(
-              themeController.isDark ? 'Night' : 'Day',
-              style:
-                  GoogleFonts.ubuntu(fontWeight: FontWeight.bold, fontSize: 17),
-            ),
-            activeColor: Colors.green,
-            inactiveThumbColor: Colors.grey,
-            activeTrackColor: Colors.green.withOpacity(0.5),
-            inactiveTrackColor: Colors.grey.withOpacity(0.5),
-            secondary: Icon(
-              themeController.isDark ? Icons.nightlight_round : Icons.wb_sunny,
-              color: themeController.isDark ? Colors.yellow : Colors.orange,
-            ),
-            value: themeController.switcherController.value,
-            onChanged: (value) {
-              themeController.switcherController.value = value;
-            },
-          ),
-        ),
+  Widget _buildCalculatorButton(
+    ThemeController themeController,
+    CalculateController controller,
+    int index,
+    bool isTablet,
+  ) {
+    Color buttonColor;
+    Color textColor;
+    
+    switch (index) {
+      case 0: // Clear
+      case 1: // Delete
+      case 19: // Equals
+        buttonColor = themeController.isDark
+            ? DarkColors.leftOperatorColor
+            : LightColors.leftOperatorColor;
+        textColor = themeController.isDark
+            ? DarkColors.btnBgColor
+            : LightColors.btnBgColor;
+        break;
+      default:
+        if (isOperator(buttons[index])) {
+          buttonColor = LightColors.operatorColor;
+          textColor = Colors.white;
+        } else {
+          buttonColor = themeController.isDark
+              ? DarkColors.btnBgColor
+              : LightColors.btnBgColor;
+          textColor = themeController.isDark
+              ? Colors.white
+              : Colors.black87;
+        }
+    }
 
-        /// Main Result - user input and output
-        Padding(
-          padding: const EdgeInsets.only(right: 20, top: 70),
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  controller.userInput,
-                  style: GoogleFonts.ubuntu(
-                      color:
-                          themeController.isDark ? Colors.white : Colors.black,
-                      fontSize: 38),
-                ),
-              ),
-              Container(
-                alignment: Alignment.bottomRight,
-                child: Text(
-                  controller.userOutput,
-                  style: GoogleFonts.ubuntu(
-                    fontWeight: FontWeight.bold,
-                    color: themeController.isDark ? Colors.white : Colors.black,
-                    fontSize: 60,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ));
+    return CustomAppButton(
+      buttonTapped: () => _handleButtonTap(controller, index),
+      color: buttonColor,
+      textColor: textColor,
+      text: buttons[index],
+    );
   }
 
-  /// is Operator Check
-  bool isOperator(String y) {
-    if (y == "%" || y == "/" || y == "x" || y == "-" || y == "+" || y == "=") {
-      return true;
+  void _handleButtonTap(CalculateController controller, int index) {
+    switch (index) {
+      case 0: // Clear
+        controller.clearInputAndOutput();
+        break;
+      case 1: // Delete
+        controller.deleteBtnAction();
+        break;
+      case 19: // Equal
+        controller.equalPressed();
+        break;
+      default:
+        controller.onBtnTapped(buttons, index);
     }
-    return false;
+  }
+
+  double _getInputFontSize(int textLength, bool isTablet) {
+    if (isTablet) {
+      if (textLength > 20) return 24;
+      if (textLength > 15) return 28;
+      if (textLength > 10) return 32;
+      return 36;
+    } else {
+      if (textLength > 15) return 20;
+      if (textLength > 10) return 24;
+      if (textLength > 8) return 28;
+      return 32;
+    }
+  }
+
+  double _getOutputFontSize(int textLength, bool isTablet) {
+    if (isTablet) {
+      if (textLength > 12) return 36;
+      if (textLength > 8) return 42;
+      if (textLength > 6) return 48;
+      return 54;
+    } else {
+      if (textLength > 10) return 32;
+      if (textLength > 8) return 36;
+      if (textLength > 6) return 42;
+      return 48;
+    }
+  }
+
+  double _getButtonAspectRatio(BoxConstraints constraints, bool isTablet) {
+    // Calculate optimal aspect ratio based on available space
+    final availableHeight = constraints.maxHeight - 32; // Account for padding
+    final availableWidth = constraints.maxWidth - 32; // Account for padding
+    
+    // Calculate button dimensions for 5 rows and 4 columns
+    final buttonHeight = (availableHeight - (4 * (isTablet ? 16 : 8))) / 5; // 5 rows
+    final buttonWidth = (availableWidth - (3 * (isTablet ? 16 : 8))) / 4; // 4 columns
+    
+    return buttonWidth / buttonHeight;
+  }
+
+  bool isOperator(String y) {
+    return y == "%" || y == "/" || y == "x" || y == "-" || y == "+" || y == "=";
   }
 }

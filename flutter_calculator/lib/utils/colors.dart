@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 
-/// Dark Theme Colors
 class DarkColors {
-  static const scaffoldBgColor = Color(0xff22252D);
-  static const sheetBgColor = Color(0xff292D36);
-  static const btnBgColor = Color.fromARGB(255, 15, 15, 15);
-  static const leftOperatorColor = Color(0xffD32F2F);
+  static const scaffoldBgColor = Color(0xff1C1C1E);
+  static const sheetBgColor = Color(0xff2C2C2E);
+  static const btnBgColor = Color(0xff3A3A3C);
+  static const leftOperatorColor = Color(0xffFF9F0A);
+  static const operatorColor = Color(0xffFF9F0A);
 }
 
-/// Light Them Colors
 class LightColors {
   static const scaffoldBgColor = Color(0xffFFFFFF);
-  static const sheetBgColor = Color(0xffF9F9F9);
-  static const btnBgColor = Color.fromARGB(255, 243, 243, 243);
-  static const operatorColor = Colors.deepPurpleAccent;
-  static const leftOperatorColor = Color(0xffD32F2F);
+  static const sheetBgColor = Color(0xffF2F2F7);
+  static const btnBgColor = Color(0xffFFFFFF);
+  static const operatorColor = Color(0xff007AFF);
+  static const leftOperatorColor = Color(0xffFF3B30);
 }
