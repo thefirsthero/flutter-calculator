@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   // Disable screen rotation
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
