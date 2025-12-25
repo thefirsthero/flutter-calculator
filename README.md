@@ -118,6 +118,147 @@ flutter build appbundle --release
 flutter build ios --release
 ```
 
+## Releasing to Google Play Store
+
+This guide walks you through the process of releasing an updated version to the Google Play Store.
+
+### Prerequisites
+
+- Google Play Developer account
+- Signing key configured in `android/key.properties`
+- App already published on Play Store
+
+### Step 1: Update Version Number
+
+Update the version in `pubspec.yaml`:
+
+```yaml
+version: 1.0.1+4 # Format: major.minor.patch+buildNumber
+```
+
+Version format explanation:
+
+- **1.0.1** - Version name (shown to users)
+- **+4** - Version code (internal, must increment with each release)
+
+### Step 2: Build the Release Bundle
+
+Build the Android App Bundle (AAB) for Play Store:
+
+```bash
+flutter build appbundle --release
+```
+
+The build output will be located at:
+
+```
+build/app/outputs/bundle/release/app-release.aab
+```
+
+### Step 3: Test the Release Build (Optional but Recommended)
+
+Build and test the release APK on a physical device:
+
+```bash
+# Build release APK
+flutter build apk --release
+
+# Install on connected device
+adb install build/app/outputs/flutter-apk/app-release.apk
+```
+
+### Step 4: Upload to Play Console
+
+1. **Access Play Console**
+
+   - Go to [Google Play Console](https://play.google.com/console)
+   - Sign in with your developer account
+   - Select "Minimal Calculator" app
+
+2. **Create New Release**
+
+   - Navigate to **Production** (or **Testing** → **Internal testing** for testing first)
+   - Click **Create new release**
+   - Upload the AAB file from `build/app/outputs/bundle/release/app-release.aab`
+
+3. **Add Release Notes**
+
+   Example release notes:
+
+   ```
+   What's New in v1.0.1:
+   - Updated to latest Android build system
+   - Improved app stability and performance
+   - Fixed UI rendering issues
+   - Enhanced compatibility with newer Android versions
+   - Updated dependencies for better security
+   - Bug fixes and performance improvements
+   ```
+
+4. **Review Release**
+
+   - Review the release summary
+   - Check for any warnings or errors
+   - Set rollout percentage:
+     - **20-50%** for cautious rollout (monitor for issues)
+     - **100%** for full immediate release
+
+5. **Start Rollout**
+   - Click **Review release**
+   - Click **Start rollout to Production**
+
+### Step 5: Post-Release
+
+- Monitor crash reports and user feedback in Play Console
+- Respond to user reviews
+- Track app performance metrics
+- Plan for next release based on feedback
+
+### Rollback (if needed)
+
+If issues are discovered after release:
+
+1. Go to Play Console → Production
+2. Click on the problematic release
+3. Select **Halt rollout** or **Create rollback**
+
+### Release Checklist
+
+Before submitting:
+
+- [ ] Version number incremented in `pubspec.yaml`
+- [ ] Release notes prepared
+- [ ] AAB built successfully without errors
+- [ ] Tested release build on physical device
+- [ ] Signing configuration verified in `android/key.properties`
+- [ ] No debug code or console logs in production
+- [ ] Screenshots updated (if UI changed)
+- [ ] Store listing updated (if needed)
+
+### Troubleshooting
+
+**Build Fails:**
+
+```bash
+# Clean and rebuild
+flutter clean
+flutter pub get
+flutter build appbundle --release
+```
+
+**Signing Issues:**
+Verify `android/key.properties` contains:
+
+```properties
+storePassword=<your-store-password>
+keyPassword=<your-key-password>
+keyAlias=<your-key-alias>
+storeFile=<path-to-keystore.jks>
+```
+
+**Version Code Error:**
+Ensure the version code (+number) is higher than the previous release.
+
 ## Project Structure
 
 ```
