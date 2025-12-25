@@ -102,7 +102,7 @@ class MainScreen extends StatelessWidget {
             alignment: Alignment.topRight,
             child: _buildThemeToggle(themeController, isTablet),
           ),
-          
+
           // Spacer to push results to bottom
           Expanded(
             child: Container(
@@ -127,10 +127,10 @@ class MainScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            themeController.isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-            color: themeController.isDark 
-                ? Colors.grey[400] 
-                : Colors.grey[600],
+            themeController.isDark
+                ? Icons.dark_mode_outlined
+                : Icons.light_mode_outlined,
+            color: themeController.isDark ? Colors.grey[400] : Colors.grey[600],
             size: isTablet ? 20 : 18,
           ),
           const SizedBox(width: 8),
@@ -141,12 +141,10 @@ class MainScreen extends StatelessWidget {
               onChanged: (value) {
                 themeController.switcherController.value = value;
               },
-              activeTrackColor: themeController.isDark 
-                  ? Colors.blue[400] 
-                  : Colors.blue[600],
-              inactiveTrackColor: themeController.isDark 
-                  ? Colors.grey[700] 
-                  : Colors.grey[300],
+              activeTrackColor:
+                  themeController.isDark ? Colors.blue[400] : Colors.blue[600],
+              inactiveTrackColor:
+                  themeController.isDark ? Colors.grey[700] : Colors.grey[300],
             ),
           ),
         ],
@@ -160,67 +158,64 @@ class MainScreen extends StatelessWidget {
     BoxConstraints constraints,
     bool isTablet,
   ) {
-    return Flexible(
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(
-          horizontal: isTablet ? 24 : 20,
-          vertical: isTablet ? 16 : 12,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // User Input Display
-            if (controller.userInput.isNotEmpty)
-              Container(
-                width: double.infinity,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  reverse: true,
-                  child: Text(
-                    controller.userInput,
-                    style: GoogleFonts.ubuntu(
-                      color: themeController.isDark 
-                          ? Colors.grey[400] 
-                          : Colors.grey[600],
-                      fontSize: _getInputFontSize(
-                        controller.userInput.length,
-                        isTablet,
-                      ),
-                      fontWeight: FontWeight.w400,
-                    ),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-              ),
-            
-            if (controller.userInput.isNotEmpty)
-              SizedBox(height: 8),
-            
-            // User Output Display
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 24 : 20,
+        vertical: isTablet ? 16 : 12,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // User Input Display
+          if (controller.userInput.isNotEmpty)
             Container(
               width: double.infinity,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 reverse: true,
                 child: Text(
-                  controller.userOutput.isEmpty ? "0" : controller.userOutput,
+                  controller.userInput,
                   style: GoogleFonts.ubuntu(
-                    fontWeight: FontWeight.w300,
-                    color: themeController.isDark ? Colors.white : Colors.black87,
-                    fontSize: _getOutputFontSize(
-                      controller.userOutput.length,
+                    color: themeController.isDark
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
+                    fontSize: _getInputFontSize(
+                      controller.userInput.length,
                       isTablet,
                     ),
+                    fontWeight: FontWeight.w400,
                   ),
                   textAlign: TextAlign.right,
                 ),
               ),
             ),
-          ],
-        ),
+
+          if (controller.userInput.isNotEmpty) SizedBox(height: 8),
+
+          // User Output Display
+          Container(
+            width: double.infinity,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              child: Text(
+                controller.userOutput.isEmpty ? "0" : controller.userOutput,
+                style: GoogleFonts.ubuntu(
+                  fontWeight: FontWeight.w300,
+                  color: themeController.isDark ? Colors.white : Colors.black87,
+                  fontSize: _getOutputFontSize(
+                    controller.userOutput.length,
+                    isTablet,
+                  ),
+                ),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -265,7 +260,8 @@ class MainScreen extends StatelessWidget {
               crossAxisCount: 4,
               crossAxisSpacing: isTablet ? 16 : 8,
               mainAxisSpacing: isTablet ? 16 : 8,
-              childAspectRatio: _getButtonAspectRatio(buttonConstraints, isTablet),
+              childAspectRatio:
+                  _getButtonAspectRatio(buttonConstraints, isTablet),
             ),
             itemBuilder: (context, index) {
               return _buildCalculatorButton(
@@ -289,7 +285,7 @@ class MainScreen extends StatelessWidget {
   ) {
     Color buttonColor;
     Color textColor;
-    
+
     switch (index) {
       case 0: // Clear
       case 1: // Delete
@@ -309,9 +305,7 @@ class MainScreen extends StatelessWidget {
           buttonColor = themeController.isDark
               ? DarkColors.btnBgColor
               : LightColors.btnBgColor;
-          textColor = themeController.isDark
-              ? Colors.white
-              : Colors.black87;
+          textColor = themeController.isDark ? Colors.white : Colors.black87;
         }
     }
 
@@ -371,11 +365,13 @@ class MainScreen extends StatelessWidget {
     // Calculate optimal aspect ratio based on available space
     final availableHeight = constraints.maxHeight - 32; // Account for padding
     final availableWidth = constraints.maxWidth - 32; // Account for padding
-    
+
     // Calculate button dimensions for 5 rows and 4 columns
-    final buttonHeight = (availableHeight - (4 * (isTablet ? 16 : 8))) / 5; // 5 rows
-    final buttonWidth = (availableWidth - (3 * (isTablet ? 16 : 8))) / 4; // 4 columns
-    
+    final buttonHeight =
+        (availableHeight - (4 * (isTablet ? 16 : 8))) / 5; // 5 rows
+    final buttonWidth =
+        (availableWidth - (3 * (isTablet ? 16 : 8))) / 4; // 4 columns
+
     return buttonWidth / buttonHeight;
   }
 
