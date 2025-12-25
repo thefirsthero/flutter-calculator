@@ -141,10 +141,10 @@ class MainScreen extends StatelessWidget {
               onChanged: (value) {
                 themeController.switcherController.value = value;
               },
-              activeColor: themeController.isDark 
+              activeTrackColor: themeController.isDark 
                   ? Colors.blue[400] 
                   : Colors.blue[600],
-              trackColor: themeController.isDark 
+              inactiveTrackColor: themeController.isDark 
                   ? Colors.grey[700] 
                   : Colors.grey[300],
             ),
