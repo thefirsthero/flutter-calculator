@@ -1,32 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 
-class ThemeController extends GetxController {
-  bool isDark = true;
-  final switcherController = ValueNotifier<bool>(false);
+/// Tracks the active theme mode (dark by default).
+class ThemeController extends ChangeNotifier {
+  ThemeMode _mode = ThemeMode.dark;
 
-  lightTheme() {
-    isDark = false;
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-    update();
-  }
+  ThemeMode get mode => _mode;
 
-  darkTheme() {
-    isDark = true;
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-    update();
-  }
+  bool get isDark => _mode == ThemeMode.dark;
 
-  @override
-  void onInit() {
-    switcherController.addListener(() {
-      if (switcherController.value) {
-        lightTheme();
-      } else {
-        darkTheme();
-      }
-    });
-    super.onInit();
+  void toggle() {
+    _mode = isDark ? ThemeMode.light : ThemeMode.dark;
+    notifyListeners();
   }
 }

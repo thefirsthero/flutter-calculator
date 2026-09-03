@@ -1,30 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_calculator/bindings/my_bindings.dart';
-import 'package:flutter_calculator/screen/main_screen.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:flutter_calculator/app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // Disable screen rotation
-  SystemChrome.setPreferredOrientations([
+  // Lock the calculator to portrait so the layout stays predictable.
+  SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialBinding: MyBindings(),
-      title: "Flutter Calculator",
-      home: MainScreen(),
-    );
-  }
+  runApp(const CalculatorApp());
 }
