@@ -1,0 +1,5 @@
+# Signing secrets — NEVER commit these.
+NOTES.txt
+key.properties
+*.jks
+*.keystore
