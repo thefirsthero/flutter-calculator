@@ -1,17 +1,17 @@
 # Flutter Calculator
 
-A beautiful, feature-rich calculator application built with Flutter and GetX state management. This app features a modern neumorphic design with light/dark theme support and has been deployed to the Google Play Store.
+A clean, feature-rich calculator built with Flutter. It uses a Material 3 design with light/dark theme support, live result preview, calculation history, and haptic feedback — and ships to the Google Play Store via automated CI/CD.
 
 ## Features
 
-- ✨ Clean and intuitive user interface
-- 🌓 Light/Dark theme toggle with neumorphic design
-- 🔢 Basic arithmetic operations (Addition, Subtraction, Multiplication, Division)
-- 📱 Responsive design (works on phones and tablets)
-- 🎨 Custom Google Fonts integration
-- 🔒 Portrait mode only for optimal calculator experience
-- 💾 ANS button to reuse previous results
-- ⚡ Fast and accurate calculations using math expressions parser
+- ✨ Material 3 design with light/dark theme toggle
+- 🔢 Basic arithmetic (+, −, ×, ÷) with a working percentage (%) key
+- 👁️ Live result preview while typing
+- 🕘 Calculation history (tap an entry to reuse it)
+- 💾 ANS button to reuse the previous result
+- 📳 Haptic feedback and button press animations
+- 📱 Responsive, device-agnostic layout that respects system insets
+- ⚡ Accurate evaluation with the math_expressions parser
 
 ## Screenshots
 
@@ -19,20 +19,18 @@ A beautiful, feature-rich calculator application built with Flutter and GetX sta
 
 ## Tech Stack
 
-- **Flutter** - Cross-platform framework
-- **GetX** - State management and dependency injection
-- **math_expressions** - Mathematical expression parsing and evaluation
-- **flutter_neumorphic** - Neumorphic UI components
-- **google_fonts** - Custom font integration
-- **flutter_advanced_switch** - Theme toggle switch
+- **Flutter** — cross-platform framework
+- **ChangeNotifier** — built-in state management (no third-party state library)
+- **math_expressions** — mathematical expression parsing and evaluation
+- **Fastlane + GitHub Actions** — automated Play Store releases
+- **flutter_launcher_icons** — app icon generation
 
 ## Requirements
 
-- Flutter SDK: >=2.17.0 <3.0.0
-- Dart SDK: >=2.17.0 <3.0.0
-- Android Studio / VS Code with Flutter extensions
-- For Android: Minimum SDK version 21
-- For iOS: iOS 11.0 or higher
+- Flutter 3.47+ / Dart 3+
+- Android Studio / VS Code with the Flutter extension
+- Android: minimum SDK 24 (Flutter default)
+- iOS: macOS + Xcode required (deployment target per Flutter defaults)
 
 ## Installation
 
@@ -120,186 +118,92 @@ flutter build ios --release
 
 ## Releasing to Google Play Store
 
-This guide walks you through the process of releasing an updated version to the Google Play Store.
+Releases are fully automated with GitHub Actions + Fastlane. Pushing a version tag builds a signed App Bundle and publishes it straight to the **production** track.
 
-### Prerequisites
+### 1. Bump the version
 
-- Google Play Developer account
-- Signing key configured in `android/key.properties`
-- App already published on Play Store
-
-### Step 1: Update Version Number
-
-Update the version in `pubspec.yaml`:
+In `pubspec.yaml`, increment the version code (the `+N` part — it must always be higher than the current release):
 
 ```yaml
-version: 1.0.1+4 # Format: major.minor.patch+buildNumber
+version: 2.0.1+6
 ```
 
-Version format explanation:
+- `2.0.1` — version name (shown to users)
+- `+6` — version code (internal; must increase each release)
 
-- **1.0.1** - Version name (shown to users)
-- **+4** - Version code (internal, must increment with each release)
-
-### Step 2: Build the Release Bundle
-
-Build the Android App Bundle (AAB) for Play Store:
+### 2. Tag and push
 
 ```bash
-flutter build appbundle --release
+git tag v2.0.1
+git push origin v2.0.1
 ```
 
-The build output will be located at:
+The workflow (`.github/workflows/release.yml`) builds, signs, and uploads to production. Monitor it under **Actions → Publish to Google Play**.
 
-```
-build/app/outputs/bundle/release/app-release.aab
-```
+### Manual trigger
 
-### Step 3: Test the Release Build (Optional but Recommended)
+To run without creating a tag: **Actions → Publish to Google Play → Run workflow**.
 
-Build and test the release APK on a physical device:
+### Rollback / review
 
-```bash
-# Build release APK
-flutter build apk --release
-
-# Install on connected device
-adb install build/app/outputs/flutter-apk/app-release.apk
-```
-
-### Step 4: Upload to Play Console
-
-1. **Access Play Console**
-
-   - Go to [Google Play Console](https://play.google.com/console)
-   - Sign in with your developer account
-   - Select "Minimal Calculator" app
-
-2. **Create New Release**
-
-   - Navigate to **Production** (or **Testing** → **Internal testing** for testing first)
-   - Click **Create new release**
-   - Upload the AAB file from `build/app/outputs/bundle/release/app-release.aab`
-
-3. **Add Release Notes**
-
-   Example release notes:
-
-   ```
-   What's New in v1.0.1:
-   - Updated to latest Android build system
-   - Improved app stability and performance
-   - Fixed UI rendering issues
-   - Enhanced compatibility with newer Android versions
-   - Updated dependencies for better security
-   - Bug fixes and performance improvements
-   ```
-
-4. **Review Release**
-
-   - Review the release summary
-   - Check for any warnings or errors
-   - Set rollout percentage:
-     - **20-50%** for cautious rollout (monitor for issues)
-     - **100%** for full immediate release
-
-5. **Start Rollout**
-   - Click **Review release**
-   - Click **Start rollout to Production**
-
-### Step 5: Post-Release
-
-- Monitor crash reports and user feedback in Play Console
-- Respond to user reviews
-- Track app performance metrics
-- Plan for next release based on feedback
-
-### Rollback (if needed)
-
-If issues are discovered after release:
-
-1. Go to Play Console → Production
-2. Click on the problematic release
-3. Select **Halt rollout** or **Create rollback**
-
-### Release Checklist
-
-Before submitting:
-
-- [ ] Version number incremented in `pubspec.yaml`
-- [ ] Release notes prepared
-- [ ] AAB built successfully without errors
-- [ ] Tested release build on physical device
-- [ ] Signing configuration verified in `android/key.properties`
-- [ ] No debug code or console logs in production
-- [ ] Screenshots updated (if UI changed)
-- [ ] Store listing updated (if needed)
+- To review before going live, change `release_status: "completed"` to `"draft"` in `android/fastlane/Fastfile`.
+- To halt a rollout: **Play Console → Production → Halt rollout**.
 
 ### Troubleshooting
 
-**Build Fails:**
-
-```bash
-# Clean and rebuild
-flutter clean
-flutter pub get
-flutter build appbundle --release
-```
-
-**Signing Issues:**
-Verify `android/key.properties` contains:
-
-```properties
-storePassword=<your-store-password>
-keyPassword=<your-key-password>
-keyAlias=<your-key-alias>
-storeFile=<path-to-keystore.jks>
-```
-
-**Version Code Error:**
-Ensure the version code (+number) is higher than the previous release.
+- **Version code error** — make sure the `+N` in `pubspec.yaml` is higher than the current release.
+- **Signing error** — check the keystore secrets in GitHub: **Settings → Secrets and variables → Actions** (`KEYSTORE_BASE64`, `STORE_PASSWORD`, `KEY_PASSWORD`, `KEY_ALIAS`).
+- **Permission error (403)** — grant the Play service account **Admin (all permissions)** in Play Console → Users and permissions.
+- **"Target SDK too low"** — bump `targetSdk` in `android/app/build.gradle` (Google raises this minimum each year).
 
 ## Project Structure
 
 ```
 lib/
-├── main.dart                    # App entry point
-├── bindings/
-│   └── my_bindings.dart        # GetX dependency injection bindings
+├── main.dart                      # App entry point
+├── app.dart                       # Root widget + controllers
 ├── controller/
-│   ├── calculate_controller.dart # Calculator logic controller
-│   └── theme_controller.dart     # Theme management controller
-├── screen/
-│   └── main_screen.dart         # Main calculator screen
-├── utils/
-│   └── colors.dart              # Color definitions
-└── widget/
-    └── button.dart              # Custom button widget
+│   ├── calculate_controller.dart  # Calculator state + history (ChangeNotifier)
+│   └── theme_controller.dart      # Light/dark mode (ChangeNotifier)
+├── models/
+│   └── history_entry.dart         # History entry model
+├── screens/
+│   └── calculator_screen.dart     # Main Material 3 screen
+├── theme/
+│   └── app_theme.dart             # Material 3 light/dark themes
+└── widgets/
+    └── calculator_button.dart     # Circular key with ripple + haptics
 ```
 
 ## How It Works
 
-1. **State Management**: Uses GetX for efficient state management and dependency injection
-2. **Expression Parsing**: Utilizes `math_expressions` package to parse and evaluate mathematical expressions
-3. **Theme System**: Implements custom light/dark theme with neumorphic design patterns
-4. **Responsive Layout**: Adapts to different screen sizes with dynamic layouts for phones and tablets
+1. **State Management**: Uses Flutter's built-in `ChangeNotifier` — no third-party state library
+2. **Expression Parsing**: Uses `math_expressions` to parse and evaluate expressions, with a live preview as you type
+3. **Theme System**: Material 3 `ColorScheme` with light/dark themes generated from a seed color
+4. **Responsive Layout**: Expanded rows/columns scale the keypad to any screen, and `SafeArea` keeps content clear of system bars
 
 ## Key Features Explained
 
 ### Basic Operations
 
 - Addition (+)
-- Subtraction (-)
-- Multiplication (x)
-- Division (/)
+- Subtraction (−)
+- Multiplication (×)
+- Division (÷)
 - Percentage (%)
 
 ### Special Buttons
 
 - **C**: Clear all input and output
-- **DEL**: Delete last character
+- **DEL**: Delete the last character
+- **%**: Percentage — `200 + 10%` = `220` (iPhone-style); plain `50%` = `0.5`
 - **ANS**: Use the result from the previous calculation
 - **=**: Calculate the result
+
+### History & Live Preview
+
+- The running result is shown dimmed above the answer as you type
+- Tap the 🕘 icon to view history, tap an entry to reuse it, or clear the list
 
 ## Development
 
@@ -308,7 +212,7 @@ lib/
 The project uses `flutter_launcher_icons` for generating app icons:
 
 ```bash
-flutter pub run flutter_launcher_icons:main
+dart run flutter_launcher_icons
 ```
 
 Make sure to place your app icon at `assets/app_logo.png`
@@ -332,5 +236,4 @@ For any queries or support, please open an issue in the repository.
 ## Acknowledgments
 
 - Built with Flutter
-- State management by GetX
-- Mathematical expression parsing by math_expressions package
+- Mathematical expression parsing by the math_expressions package
