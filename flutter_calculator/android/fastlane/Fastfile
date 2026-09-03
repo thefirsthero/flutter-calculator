@@ -1,0 +1,22 @@
+# Fastlane configuration for Google Play releases.
+
+default_platform(:android)
+
+platform :android do
+  desc "Upload the release App Bundle to the Play Store production track"
+  lane :production do
+    supply(
+      package_name: "com.thefirsthero.minimalcalculator",
+      track: "production",
+      # "completed" immediately rolls out to 100% of users.
+      # Change to "draft" if you want a manual review in Play Console first.
+      release_status: "completed",
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      json_key_data: ENV.fetch("PLAY_CONFIG_JSON"),
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
